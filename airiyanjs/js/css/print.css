@@ -1,0 +1,78 @@
+main>table {
+    max-width: 1500px !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media print {
+    .printHide {
+        display: none;;
+    }
+    html,
+    body {
+        background-color: #fff;
+        height: 100%;
+        font-size: 10px;
+        transform: scale(1);
+        /* prevent shrinking */
+        zoom: 100%;
+    }
+
+    body header,
+    body footer {
+        visibility: hidden;
+        height: auto;
+        display: none;
+    }
+
+    main {
+        position: absolute;
+        width: 100%;
+        page-break-after: always;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    main>table {
+        max-width: 100%;
+        break-before: page;
+    }
+
+    main>table:first-of-type {
+        break-before: auto;
+    }
+
+    @page {
+        /* size: A4 portrait; */
+        margin: 4mm;
+    }
+
+    table {
+        page-break-inside: auto;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    tr,
+    td,
+    th {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    .page-break {
+        break-before: page;
+    }
+}

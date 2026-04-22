@@ -1,0 +1,9 @@
+@media print {
+
+    @page {
+        /* width height */
+        size: 12cm 4cm;
+        margin: 0;
+    }
+    
+}

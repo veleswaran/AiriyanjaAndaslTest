@@ -1,0 +1,16 @@
+.chipsSearchInput {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 15px;
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.chipsShadowText {
+    font-size: 15px;
+    pointer-events: none;
+    color: gray;
+    grid-row: 1;
+    grid-column: 1;
+}

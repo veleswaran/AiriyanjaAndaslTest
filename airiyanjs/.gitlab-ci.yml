@@ -1,0 +1,21 @@
+stages:
+  - build
+  - trigger
+
+# Normal frontend build/test jobs here…
+frontend-build:
+  stage: build
+  script:
+    - echo "Running frontend build…"
+  only:
+    - main                                # only trigger when frontend main branch updates
+
+# Trigger backend repo pipeline
+trigger-backend-submodule-update:
+  stage: trigger
+  trigger:
+    project: airiyan-group/airiyan   # full path of backend project
+    branch: staging                       # branch to run backend pipeline on
+    strategy: depend                      # frontend waits for backend pipeline result
+  only:
+    - main                                # only trigger when frontend main branch updates

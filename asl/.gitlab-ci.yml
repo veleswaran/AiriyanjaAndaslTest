@@ -1,0 +1,46 @@
+stages:
+  - build
+  - deploy
+
+cache:
+  key: "maven-${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .m2/repository
+  
+build_production:
+  stage: build
+  image: maven:3.9.4-eclipse-temurin-21
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never
+  before_script:
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+  script:
+    - mvn clean package -Pcicd-build -Dmaven.repo.local=.m2/repository
+    - ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+    - VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    - echo "WAR_FILE=$ARTIFACT_ID-$VERSION.war" > genvalues.env
+  artifacts:
+    access: 'none'
+    reports:
+      dotenv: genvalues.env
+    paths:
+      - target/*.war
+      
+deploy_production:
+  stage: deploy
+  tags:
+    - shell
+  needs:
+    - job: build_production
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never
+  script:
+    - echo "Deploying to GlassFish..."
+    - echo "Deploying $WAR_FILE"
+    - echo "AS_ADMIN_PASSWORD=$GLASSFISH_PASSWORD" > password.txt
+    - $GLASSFISH_HOME/bin/asadmin --user admin --passwordfile password.txt deploy --force=true --contextroot $CONTEXT_ROOT --virtualservers $VIRTUAL_SERVER --name $APP_NAME target/$WAR_FILE

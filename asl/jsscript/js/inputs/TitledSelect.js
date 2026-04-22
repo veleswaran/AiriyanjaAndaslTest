@@ -1,0 +1,63 @@
+import React from "react";
+import { uuidv4 } from "../utilities/uuidv4";
+
+export class TitledSelect extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { value: "", uuid: uuidv4(), validClass: "" };
+    }
+
+    changeValue = (evt) => {
+        this.state.value = evt.target.value;
+        if (this.props.onChange) {
+            this.props.onChange(evt.target.value, evt.target);
+        }
+        this.isValid();
+    }
+
+    getValue = () => {
+        return this.state.value;
+    }
+
+    setValid = (valid) => {
+        this.setState({ validClass: valid ? "is-valid" : "is-invalid" });
+    }
+
+    isValid = () => {
+        const { validator } = this.props;
+        const { value } = this.state;
+        var res = true;
+        if (!value || !value.trim() === "" || this.state.value.trim() === "select") {
+            res = false;
+        }
+        if (validator) {
+            res = validator(value) ? res : false;
+        }
+        this.setState({ validClass: res ? "is-valid" : "is-invalid" });
+        return res;
+    }
+
+    render() {
+        const { uuid, validClass } = this.state;
+        const { placeholder = "", name, isstringlist = true, options = [] } = this.props;
+        const allOptions = [];
+        allOptions.push(<option value="" selected="" >-Select-</option>);
+        if (isstringlist) {
+            options.forEach(option => {
+                allOptions.push(<option value={option} selected="" >{option}</option>);
+            });
+        } else {
+            options.forEach(option => {
+                allOptions.push(<option value={option.value} selected="" >{option.label}</option>);
+            });
+        }
+        return (<div class="form-floating" >
+            <select key={uuid} class={validClass + " form-control " + (this.props.class || "")}
+                name={name} placeholder={placeholder} onChange={this.changeValue} id={uuid} >
+                {allOptions}
+            </select>
+            <label for={uuid} > {placeholder}</label>
+        </div>
+        );
+    }
+}
