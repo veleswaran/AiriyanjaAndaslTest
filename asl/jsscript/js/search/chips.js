@@ -1,5 +1,4 @@
 import React from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FILTERS, MAX_CHARACTER_LEN, SPECIAL_FILTER_TYPES, SPECIAL_KEYS } from "./constants";
 import { POPUP } from "../app";
 import { AutoRender } from "../utilities/rendering";
@@ -224,7 +223,7 @@ export class Chips extends React.Component {
     }
 
     render() {
-        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View Client Details, Others to Edit" } = this.props;
+        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit" } = this.props;
         const { filterKey, filterValue, editing, isValid, isSpecialFilter, focused, inputType } = this.state;
         const validClass = isValid ? "" : "text-danger";
         const { poper: { display: { component } = {} } = {}, type } = filter;
@@ -234,28 +233,24 @@ export class Chips extends React.Component {
                 displayValue = AutoRender(component, filterValue);
                 break;
         }
-        return <div className={`${chip} ` + ((editing || focused) ? highlight : normal)} style={style} >
+        return <div className={`${chip} position-relative ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
             <div className="d-flex align-items-center ps-1">
                 <p className="m-0 d-flex align-items-center" onClick={this.onClick}>
                     <strong className={isSpecialFilter ? "d-none" : ""}>{filterKey}<span className="mx-1">:</span></strong>
                     <p className={"d-inline-block m-0 " + (editing ? "visually-hidden" : "")} style={{ maxWidth: "300px" }}>{displayValue}</p>
-                    {tooltip ? (
-                        <OverlayTrigger
-                            placement="top"
-                            popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 20] } }] }}
-                            overlay={<Tooltip id={`tooltip-${filterKey}`}>{tooltip}</Tooltip>}
-                            trigger={['hover', 'focus']}
-                        >
-                            <input ref={this.inputRef} className={`border bg-white ${validClass} ` + (editing ? "" : "visually-hidden")} onBlur={this.onBlur} onFocus={this.onFocus} onInput={this.onInput}
-                                type={inputType} maxLength={MAX_CHARACTER_LEN} onKeyDown={this.onKeyDown} onChange={this.onChange} onPaste={this.onPaste} />
-                        </OverlayTrigger>
-                    ) : (
-                        <input ref={this.inputRef} className={`border bg-white ${validClass} ` + (editing ? "" : "visually-hidden")} onBlur={this.onBlur} onFocus={this.onFocus} onInput={this.onInput}
-                            type={inputType} maxLength={MAX_CHARACTER_LEN} onKeyDown={this.onKeyDown} onChange={this.onChange} onPaste={this.onPaste} />
-                    )}
+                    <input ref={this.inputRef} className={`border bg-white ${validClass} ` + (editing ? "" : "visually-hidden")} onBlur={this.onBlur} onFocus={this.onFocus} onInput={this.onInput}
+                        type={inputType} maxLength={MAX_CHARACTER_LEN} onKeyDown={this.onKeyDown} onChange={this.onChange} onPaste={this.onPaste} />
                 </p>
                 <button className="btn btn-sm btn-close" onClick={this.onClose}></button>
             </div>
+            {focused && tooltip && (
+                <div className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ bottom: "100%", zIndex: 1050, marginBottom: "4px", width: "200%" }}>
+                    {typeof tooltip === 'string' && tooltip.includes("'V'") ? 
+                        tooltip.split("'V'").map((part, index, arr) => 
+                            index === arr.length - 1 ? part : <React.Fragment key={index}>{part}<span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span></React.Fragment>
+                        ) : tooltip}
+                </div>
+            )}
         </div>;
     }
 }

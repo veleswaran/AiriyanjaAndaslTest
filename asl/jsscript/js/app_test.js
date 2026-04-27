@@ -152,20 +152,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // https://airiyan.in/service/locations/country/state
     // root.render(<PostButton text="Hello button" url="https://api.restful-api.dev/objects" />);
     // root.render(<GetButton text="Hello button" url="https://api.restful-api.dev/objects" onSuccess={(dta) => { console.log(dta); }} />);
-    // const filter = {
-    //     ends: { type: "pint" },
-    //     ends1: { type: "pint" },
-    //     ends2: { type: "pint" },
-    //     ends3: { type: "pint" },
-    //     ends4: { type: "pint" },
-    //     ends5: { type: "pint" },
-    //     value: { type: "int", count: 2, filterKey: "jk" },
-    //     nkey: { type: "nonkey", count: 10, filterKey: "nKey" },
-    //     client: { type: "poper", count: 10, poper: { select: { component: SerialNumberList, title: "Select some text" }, view: { component: viewtext, title: "showing value" }, display: { component: display } } },
-    //     date: { type: "date", count: 1},
-    // }
-    // root.render(<ChipsSearch filters={filter} onUpdate={() => { console.log("Updated") }} />);
-    root.render(<TextBox placeholder="Hello" onInput={(e) => { console.log(e.target.value); }} />);
+    const filter = {
+        ends: { type: "pint" },
+        ends1: { type: "pint" },
+        ends2: { type: "pint" },
+        ends3: { type: "pint" },
+        ends4: { type: "pint" },
+        ends5: { type: "pint" },
+        value: { type: "int", count: 2, filterKey: "jk" },
+        nkey: { type: "nonkey", count: 10, filterKey: "nKey" },
+        client: { type: "poper", count: 10, poper: { select: { component: SerialNumberList, title: "Select some text" }, view: { component: viewtext, title: "showing value" }, display: { component: display } } },
+        date: { type: "date", count: 1},
+    }
+    root.render(<ChipsSearch filters={filter} onUpdate={() => { console.log("Updated") }} />);
 });
 
 
