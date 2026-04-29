@@ -5,6 +5,8 @@ import { AutoRender } from "../utilities/rendering";
 
 export class Chips extends React.Component {
     inputRef = React.createRef(null);
+    containerRef = React.createRef(null);
+    tooltipRef = React.createRef(null);
     constructor(props) {
         super(props)
         const { data = {}, filter = {} } = this.props;
@@ -16,12 +18,31 @@ export class Chips extends React.Component {
                 inputType = "date";
                 break;
         }
-        this.state = { filterKey: data.key, filterValue: data.value, editing: false, isValid: true, isSpecialFilter, focused: false, inputType };
+        this.state = { filterKey: data.key, filterValue: data.value, editing: false, isValid: true, isSpecialFilter, focused: false, inputType, tooltipPosition: "top" };
 
     }
 
     componentDidMount() {
         this.POPUP = POPUP;
+        window.addEventListener('scroll', this.handleScroll, true);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll, true);
+    }
+
+    handleScroll = () => {
+        if (this.state.focused && this.containerRef.current) {
+            const rect = this.containerRef.current.getBoundingClientRect();
+            let threshold = 50;
+            if (this.tooltipRef.current) {
+                threshold = this.tooltipRef.current.offsetHeight + 10;
+            }
+            const tooltipPosition = rect.top < threshold ? "bottom" : "top";
+            if (tooltipPosition !== this.state.tooltipPosition) {
+                this.setState({ tooltipPosition });
+            }
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -103,12 +124,23 @@ export class Chips extends React.Component {
 
     onFocus = (e) => {
         const { filter: { type } } = this.props;
+        let tooltipPosition = "top";
+        if (this.containerRef.current) {
+            const rect = this.containerRef.current.getBoundingClientRect();
+            let threshold = 50;
+            if (this.tooltipRef.current) {
+                threshold = this.tooltipRef.current.offsetHeight + 10;
+            }
+            if (rect.top < threshold) {
+                tooltipPosition = "bottom";
+            }
+        }
         switch (type) {
             case FILTERS.POPER:
-                this.setState({ focused: true });
+                this.setState({ focused: true, tooltipPosition });
                 break;
             default:
-                this.setState({ focused: true }, () => {
+                this.setState({ focused: true, tooltipPosition }, () => {
                     this.enableEditing(false);
                 });
                 break;
@@ -223,8 +255,8 @@ export class Chips extends React.Component {
     }
 
     render() {
-        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit" } = this.props;
-        const { filterKey, filterValue, editing, isValid, isSpecialFilter, focused, inputType } = this.state;
+        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit Press 'V' to View, Others to Edit Press 'V' to View, Others to Edit" } = this.props;
+        const { filterKey, filterValue, editing, isValid, isSpecialFilter, focused, inputType, tooltipPosition } = this.state;
         const validClass = isValid ? "" : "text-danger";
         const { poper: { display: { component } = {} } = {}, type } = filter;
         let displayValue = filterValue;
@@ -233,7 +265,7 @@ export class Chips extends React.Component {
                 displayValue = AutoRender(component, filterValue);
                 break;
         }
-        return <div className={`${chip} position-relative ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
+        return <div ref={this.containerRef} className={`${chip} position-relative ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
             <div className="d-flex align-items-center ps-1">
                 <p className="m-0 d-flex align-items-center" onClick={this.onClick}>
                     <strong className={isSpecialFilter ? "d-none" : ""}>{filterKey}<span className="mx-1">:</span></strong>
@@ -244,7 +276,7 @@ export class Chips extends React.Component {
                 <button className="btn btn-sm btn-close" onClick={this.onClose}></button>
             </div>
             {focused && tooltip && (
-                <div className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ bottom: "100%", zIndex: 1050, marginBottom: "4px", width: "200%" }}>
+                <div ref={this.tooltipRef} className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ ...(tooltipPosition === "top" ? { bottom: "100%", marginBottom: "4px" } : { top: "100%", marginTop: "4px" }), zIndex: 1050, width: "200%" }}>
                     {typeof tooltip === 'string' && tooltip.includes("'V'") ? 
                         tooltip.split("'V'").map((part, index, arr) => 
                             index === arr.length - 1 ? part : <React.Fragment key={index}>{part}<span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span></React.Fragment>
