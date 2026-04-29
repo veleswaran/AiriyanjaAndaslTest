@@ -255,7 +255,7 @@ export class Chips extends React.Component {
     }
 
     render() {
-        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit Press 'V' to View, Others to Edit Press 'V' to View, Others to Edit" } = this.props;
+        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit" } = this.props;
         const { filterKey, filterValue, editing, isValid, isSpecialFilter, focused, inputType, tooltipPosition } = this.state;
         const validClass = isValid ? "" : "text-danger";
         const { poper: { display: { component } = {} } = {}, type } = filter;
@@ -265,7 +265,7 @@ export class Chips extends React.Component {
                 displayValue = AutoRender(component, filterValue);
                 break;
         }
-        return <div ref={this.containerRef} className={`${chip} position-relative ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
+        return <div ref={this.containerRef} className={`${chip} ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
             <div className="d-flex align-items-center ps-1">
                 <p className="m-0 d-flex align-items-center" onClick={this.onClick}>
                     <strong className={isSpecialFilter ? "d-none" : ""}>{filterKey}<span className="mx-1">:</span></strong>
@@ -276,11 +276,13 @@ export class Chips extends React.Component {
                 <button className="btn btn-sm btn-close" onClick={this.onClose}></button>
             </div>
             {focused && tooltip && (
-                <div ref={this.tooltipRef} className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ ...(tooltipPosition === "top" ? { bottom: "100%", marginBottom: "4px" } : { top: "100%", marginTop: "4px" }), zIndex: 1050, width: "200%" }}>
-                    {typeof tooltip === 'string' && tooltip.includes("'V'") ? 
-                        tooltip.split("'V'").map((part, index, arr) => 
-                            index === arr.length - 1 ? part : <React.Fragment key={index}>{part}<span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span></React.Fragment>
-                        ) : tooltip}
+                <div className="position-absolute w-100">
+                    <div ref={this.tooltipRef} className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ ...(tooltipPosition === "top" ? { bottom: "15px" } : { top: "15px" }), zIndex: 1050, minWidth: "210px", marginLeft: "10px" }}>
+                        {typeof tooltip === 'string' && tooltip.includes("'V'") ?
+                            tooltip.split("'V'").map((part, index, arr) =>
+                                index === arr.length - 1 ? part : <React.Fragment key={index}>{part}<span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span></React.Fragment>
+                            ) : tooltip}
+                    </div>
                 </div>
             )}
         </div>;
