@@ -125,6 +125,42 @@ export class DynamicInputs extends React.Component {
         return res;
     }
 
+    setValue = (valuesMap) => {
+        if (!(valuesMap instanceof Map)) return;
+        const { originalInputs, addedInputs } = this.state;
+        const newAddedInputs = [...addedInputs];
+        let newSeq = this.state.seq;
+
+        valuesMap.forEach((values, key) => {
+            const inputDef = originalInputs.find(inp => inp.name === key);
+            if (inputDef) {
+                const existing = newAddedInputs.filter(inp => inp.input.name === key);
+                const countNeeded = values.length - existing.length;
+
+                for (let i = 0; i < countNeeded; i++) {
+                    newSeq++;
+                    newAddedInputs.push({ id: newSeq.toString(), input: inputDef });
+                }
+            }
+        });
+
+        this.setState({ seq: newSeq, addedInputs: newAddedInputs }, () => {
+            this.changeAddables();
+            setTimeout(() => {
+                valuesMap.forEach((values, key) => {
+                    let valIdx = 0;
+                    for (const cont of this.state.addedInputs) {
+                        const { id, input: { name } } = cont;
+                        if (name === key && values[valIdx] !== undefined) {
+                            this.inputRefs[id]?.setValue?.(values[valIdx]);
+                            valIdx++;
+                        }
+                    }
+                });
+            }, 100);
+        });
+    }
+
 
     render() {
         const { addables, addedInputs } = this.state;
