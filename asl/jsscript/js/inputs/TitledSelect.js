@@ -8,29 +8,15 @@ export class TitledSelect extends React.Component {
     }
 
     changeValue = (evt) => {
-        const value = evt.target.value;
-        this.setState({ value }, () => {
-            if (this.props.onChange) this.props.onChange(value, evt.target);
-            this.isValid();
-        });
+        this.state.value = evt.target.value;
+        if (this.props.onChange) {
+            this.props.onChange(evt.target.value, evt.target);
+        }
+        this.isValid();
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.options !== prevProps.options || this.state.value !== prevState.value) {
-            const { options = [], isstringlist = true } = this.props;
-            const { value } = this.state;
-            if (value && value !== "") {
-                const searchVal = String(value).toLowerCase().trim();
-                const matchedOpt = options.find(opt => {
-                    const optVal = isstringlist ? opt : opt?.value;
-                    return String(optVal || "").toLowerCase().trim() === searchVal;
-                });
-                if (matchedOpt) {
-                    const matchedVal = isstringlist ? matchedOpt : matchedOpt.value;
-                    if (matchedVal !== value) this.setState({ value: matchedVal });
-                }
-            }
-        }
+    setValue = (value) => {
+        this.setState({ value: value }, () => this.isValid());
     }
 
     getValue = () => {
@@ -39,10 +25,6 @@ export class TitledSelect extends React.Component {
 
     setValid = (valid) => {
         this.setState({ validClass: valid ? "is-valid" : "is-invalid" });
-    }
-
-    setValue = (value) => {
-        this.setState({ value: value || "" }, () => this.isValid());
     }
 
     isValid = () => {
@@ -62,17 +44,36 @@ export class TitledSelect extends React.Component {
     render() {
         const { uuid, validClass, value } = this.state;
         const { placeholder = "", name, isstringlist = true, options = [] } = this.props;
-        return (<div className="form-floating" >
-            <select key={uuid} className={validClass + " form-control " + (this.props.class || "")}
-                name={name} placeholder={placeholder} onChange={this.changeValue} id={uuid} value={value || ""} >
-                <option value="">-Select-</option>
-                {options.map((opt, idx) => {
-                    const val = isstringlist ? opt : opt.value;
-                    const label = isstringlist ? opt : opt.label;
-                    return <option key={idx} value={val}>{label}</option>;
-                })}
+        const allOptions = [];
+        allOptions.push(<option value="" selected="" >-Select-</option>);
+
+        let displayValue = value || "";
+        if (displayValue !== "") {
+            const searchVal = String(displayValue).toLowerCase().trim();
+            const matchedOpt = options.find(opt => {
+                const optVal = isstringlist ? opt : opt?.value;
+                return String(optVal || "").toLowerCase().trim() === searchVal;
+            });
+            if (matchedOpt) {
+                displayValue = isstringlist ? matchedOpt : matchedOpt.value;
+            }
+        }
+
+        if (isstringlist) {
+            options.forEach(option => {
+                allOptions.push(<option value={option}>{option}</option>);
+            });
+        } else {
+            options.forEach(option => {
+                allOptions.push(<option value={option.value}>{option.label}</option>);
+            });
+        }
+        return (<div class="form-floating" >
+            <select key={uuid} class={validClass + " form-control " + (this.props.class || "")} name={name} placeholder={placeholder} onChange={this.changeValue} id={uuid} value={displayValue}>
+                {allOptions}
             </select>
-            <label htmlFor={uuid} > {placeholder}</label>
-        </div>);
+            <label for={uuid} > {placeholder}</label>
+        </div>
+        );
     }
 }
