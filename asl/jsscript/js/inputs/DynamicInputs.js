@@ -2,10 +2,10 @@ import React from "react";
 import { ButtonGroup, Dropdown } from "react-bootstrap";
 
 export class DynamicInputs extends React.Component {
+    inputRefs = {};
     constructor(props) {
         super(props);
         this.state = { seq: 0, addedInputs: [], addables: [], originalInputs: [] };
-        this.inputRefs = {};
     }
 
     componentDidMount() {
@@ -62,6 +62,29 @@ export class DynamicInputs extends React.Component {
             }),
             this.changeAddables
         );
+    }
+
+    addWithValues = (keyValueList = []) => {
+        const { seq, originalInputs, addedInputs } = this.state;
+        let newSeq = seq;
+        const newAddedInputs = [...addedInputs];
+        for (const { key, value } of keyValueList) {
+            for (const oInp of originalInputs) {
+                const { isUnique = false, name = "" } = oInp;
+                if (name === key) {
+                    let canAdd = true;
+                    if (isUnique) {
+                        canAdd = !newAddedInputs.some(aInp => aInp.input.name === key);
+                    }
+                    if (canAdd) {
+                        newSeq++;
+                        newAddedInputs.push({ id: newSeq.toString(), input: oInp, initValue: value });
+                    }
+                    break;
+                }
+            }
+        }
+        this.setState({ seq: newSeq, addedInputs: newAddedInputs }, this.changeAddables);
     }
 
     changeAddables = () => {
@@ -125,42 +148,6 @@ export class DynamicInputs extends React.Component {
         return res;
     }
 
-    setValue = (valuesMap) => {
-        if (!(valuesMap instanceof Map)) return;
-        const { originalInputs, addedInputs } = this.state;
-        const newAddedInputs = [...addedInputs];
-        let newSeq = this.state.seq;
-
-        valuesMap.forEach((values, key) => {
-            const inputDef = originalInputs.find(inp => inp.name === key);
-            if (inputDef) {
-                const existing = newAddedInputs.filter(inp => inp.input.name === key);
-                const countNeeded = values.length - existing.length;
-
-                for (let i = 0; i < countNeeded; i++) {
-                    newSeq++;
-                    newAddedInputs.push({ id: newSeq.toString(), input: inputDef });
-                }
-            }
-        });
-
-        this.setState({ seq: newSeq, addedInputs: newAddedInputs }, () => {
-            this.changeAddables();
-            setTimeout(() => {
-                valuesMap.forEach((values, key) => {
-                    let valIdx = 0;
-                    for (const cont of this.state.addedInputs) {
-                        const { id, input: { name } } = cont;
-                        if (name === key && values[valIdx] !== undefined) {
-                            this.inputRefs[id]?.setValue?.(values[valIdx]);
-                            valIdx++;
-                        }
-                    }
-                });
-            }, 100);
-        });
-    }
-
 
     render() {
         const { addables, addedInputs } = this.state;
@@ -174,12 +161,21 @@ export class DynamicInputs extends React.Component {
         }
         const allInputs = [];
         for (const aInp of addedInputs) {
-            const { id, input: { component, props, isUnique = false, isMandatory = false } = {} } = aInp;
+            const { id, input: { component, props, isUnique = false, isMandatory = false } = {}, initValue } = aInp;
             if (component) {
                 allInputs.push(
                     <div className="row m-1" key={id}>
                         <div className="col p-0">
-                            {React.createElement(component, { ...props, ref: (el) => (this.inputRefs[id] = el) })}
+                            {React.createElement(component, {
+                                ...props, key: id, ref: (el) => {
+                                    if (el && !this.inputRefs[id]) {
+                                        this.inputRefs[id] = el;
+                                        if (initValue) {
+                                            this.inputRefs[id]?.setValue?.(initValue);
+                                        }
+                                    }
+                                }
+                            })}
                         </div>
                         <div className="col-1 align-content-center text-center">
                             <button className={"btn btn-secondary btn-close" + (isMandatory && isUnique ? " disabled" : "")} onClick={() => { this.removeInput(id) }}></button>
