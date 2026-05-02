@@ -61,11 +61,11 @@ export class TitledSelect extends React.Component {
 
         if (isstringlist) {
             options.forEach(option => {
-                allOptions.push(<option value={option}>{option}</option>);
+                allOptions.push(<option value={option} selected="" >{option}</option>);
             });
         } else {
             options.forEach(option => {
-                allOptions.push(<option value={option.value}>{option.label}</option>);
+                allOptions.push(<option value={option.value} selected="" >{option.label}</option>);
             });
         }
         return (<div class="form-floating" >
