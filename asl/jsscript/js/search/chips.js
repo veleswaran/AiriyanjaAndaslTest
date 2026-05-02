@@ -3,6 +3,15 @@ import { FILTERS, MAX_CHARACTER_LEN, SPECIAL_FILTER_TYPES, SPECIAL_KEYS } from "
 import { POPUP } from "../app";
 import { AutoRender } from "../utilities/rendering";
 
+const DEFAULT_TOOLTIP = {
+    title: "Press 'V' to View, Others to Edit",
+    content: (
+        <React.Fragment>
+            Press <span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span> to View, Others to Edit
+        </React.Fragment>
+    )
+};
+
 export class Chips extends React.Component {
     inputRef = React.createRef(null);
     containerRef = React.createRef(null);
@@ -255,7 +264,7 @@ export class Chips extends React.Component {
     }
 
     render() {
-        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = "Press 'V' to View, Others to Edit" } = this.props;
+        const { css: { chip = "d-flex align-items-center rounded-1 border small", normal = "bg-body-secondary", highlight = "bg-primary text-white border-primary-subtle" } = {}, style = { cursor: "pointer" }, filter = {}, tooltip = DEFAULT_TOOLTIP } = this.props;
         const { filterKey, filterValue, editing, isValid, isSpecialFilter, focused, inputType, tooltipPosition } = this.state;
         const validClass = isValid ? "" : "text-danger";
         const { poper: { display: { component } = {} } = {}, type } = filter;
@@ -265,7 +274,9 @@ export class Chips extends React.Component {
                 displayValue = AutoRender(component, filterValue);
                 break;
         }
-        return <div ref={this.containerRef} className={`${chip} ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltip} >
+        const tooltipTitle = (tooltip && typeof tooltip === 'object') ? (tooltip.title || "") : tooltip;
+        const tooltipContent = (tooltip && typeof tooltip === 'object') ? (tooltip.content || tooltip) : tooltip;
+        return <div ref={this.containerRef} className={`${chip} ` + ((editing || focused) ? highlight : normal)} style={style} title={tooltipTitle} >
             <div className="d-flex align-items-center ps-1">
                 <p className="m-0 d-flex align-items-center" onClick={this.onClick}>
                     <strong className={isSpecialFilter ? "d-none" : ""}>{filterKey}<span className="mx-1">:</span></strong>
@@ -278,10 +289,7 @@ export class Chips extends React.Component {
             {focused && tooltip && (
                 <div className="position-relative w-100">
                     <div ref={this.tooltipRef} className="position-absolute bg-dark text-white px-2 py-1 rounded small shadow" style={{ ...(tooltipPosition === "top" ? { bottom: "15px" } : { top: "15px" }), zIndex: 1050, minWidth: "210px", transform: "translateX(-50%)" }}>
-                        {typeof tooltip === 'string' && tooltip.includes("'V'") ?
-                            tooltip.split("'V'").map((part, index, arr) =>
-                                index === arr.length - 1 ? part : <React.Fragment key={index}>{part}<span className="bg-white text-dark px-1 rounded fw-bold mx-1">V</span></React.Fragment>
-                            ) : tooltip}
+                        {tooltipContent}
                     </div>
                 </div>
             )}
