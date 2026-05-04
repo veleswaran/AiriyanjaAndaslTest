@@ -47,29 +47,17 @@ export class TitledSelect extends React.Component {
         const allOptions = [];
         allOptions.push(<option value="" selected="" >-Select-</option>);
 
-        let displayValue = value || "";
-        if (displayValue !== "") {
-            const searchVal = String(displayValue).toLowerCase().trim();
-            const matchedOpt = options.find(opt => {
-                const optVal = isstringlist ? opt : opt?.value;
-                return String(optVal || "").toLowerCase().trim() === searchVal;
-            });
-            if (matchedOpt) {
-                displayValue = isstringlist ? matchedOpt : matchedOpt.value;
-            }
-        }
-
         if (isstringlist) {
             options.forEach(option => {
-                allOptions.push(<option value={option} selected="" >{option}</option>);
+                allOptions.push(<option value={option}>{option}</option>);
             });
         } else {
             options.forEach(option => {
-                allOptions.push(<option value={option.value} selected="" >{option.label}</option>);
+                allOptions.push(<option value={option.value}>{option.label}</option>);
             });
         }
         return (<div class="form-floating" >
-            <select key={uuid} class={validClass + " form-control " + (this.props.class || "")} name={name} placeholder={placeholder} onChange={this.changeValue} id={uuid} value={displayValue}>
+            <select key={uuid} class={validClass + " form-control " + (this.props.class || "")} name={name} placeholder={placeholder} onChange={this.changeValue} id={uuid} value={value} >
                 {allOptions}
             </select>
             <label for={uuid} > {placeholder}</label>
