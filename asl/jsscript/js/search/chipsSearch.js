@@ -355,7 +355,7 @@ export class ChipsSearch extends React.Component {
             filterKey = currentFilter.key + " : ";
         }
         return <div ref={this.parentRef} className={"input-group " + css} style={style} onBlur={this.onBlur} >
-            <div className="form-control p-1 border-dark-subtle d-flex gap-1 align-items-center" style={{ minHeight: "23px" }} >
+            <div className="form-control p-1 border-dark-subtle d-flex flex-wrap gap-1 align-items-center" style={{ minHeight: "23px" }} >
                 <MultiRender key="chipsrow" ref={this.chipsRef} component={Chips} onUpdate={this.onUpdate} />
                 <div className="d-flex flex-fill" style={{ minWidth: "300px" }}>
                     <div className={"align-content-center bg-body-secondary " + (filterKey ? "" : "visually-hidden")}><strong className="p-1">{filterKey}</strong></div>

@@ -240,7 +240,7 @@ export class Chips extends React.Component {
             <div className="d-flex align-items-center ps-1">
                 <p className="m-0 d-flex align-items-center" onClick={this.onClick}>
                     <strong className={isSpecialFilter ? "d-none" : ""}>{filterKey}<span className="mx-1">:</span></strong>
-                    <p className={"d-inline-block m-0 " + (editing ? "visually-hidden" : "")} style={{ maxWidth: "300px", overflow: "auto", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayValue}</p>
+                    <p className={"d-inline-block m-0 " + (editing ? "visually-hidden" : "")} style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayValue}</p>
                     <input ref={this.inputRef} className={`border bg-white ${validClass} ` + (editing ? "" : "visually-hidden")} onBlur={this.onBlur} onFocus={this.onFocus} onInput={this.onInput}
                         type={inputType} maxLength={MAX_CHARACTER_LEN} onKeyDown={this.onKeyDown} onChange={this.onChange} onPaste={this.onPaste} />
                 </p>
